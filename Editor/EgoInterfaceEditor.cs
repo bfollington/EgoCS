@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-[CustomEditor( typeof( EgoInterface ) ) ]
+[CustomEditor( typeof( EgoInterface ), true ) ]
 public class EgoInterfaceEditor : Editor
 {
     ReorderableList reorderableList;
