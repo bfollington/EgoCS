@@ -1,20 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class EgoSystem<C1, C2, C3> : IEgoSystem
+public class EgoSystem<C1, C2, C3> : EgoSystem
     where C1 : Component
     where C2 : Component
     where C3 : Component
 {
-#if UNITY_EDITOR
-    bool _enabled = true;
-    public bool enabled { get { return _enabled; } set { _enabled = value; } }
-#endif
-
-    protected BitMask _mask = new BitMask( ComponentIDs.GetCount() );
-
     protected Dictionary<EgoComponent, EgoBundle<C1, C2, C3>> _bundles = new Dictionary<EgoComponent, EgoBundle<C1, C2, C3>>();
-    public Dictionary<EgoComponent, EgoBundle<C1, C2, C3>>.ValueCollection bundles { get { return _bundles.Values; } }
+
+    protected delegate void ForEachGameObjectDelegate( EgoComponent egoComponent, C1 component1, C2 component2, C3 component3 );
 
     public EgoSystem()
     {
@@ -34,7 +28,7 @@ public class EgoSystem<C1, C2, C3> : IEgoSystem
         EgoEvents<DestroyedComponent<C3>>.AddHandler( Handle );
     }
 
-    public void CreateBundles( EgoComponent[] egoComponents )
+    public override void CreateBundles( EgoComponent[] egoComponents )
     {
         foreach( var egoComponent in egoComponents )
         {
@@ -94,11 +88,13 @@ public class EgoSystem<C1, C2, C3> : IEgoSystem
         _bundles.Remove( egoComponent );
     }
 
-    public virtual void Start() { }
-
-    public virtual void Update() { }
-
-    public virtual void FixedUpdate() { }
+    protected void ForEachGameObject( ForEachGameObjectDelegate callback )
+    {
+        foreach( var bundle in _bundles.Values )
+        {
+            callback( bundle.egoComponent, bundle.component1, bundle.component2, bundle.component3 );
+        }
+    }
 
     //
     // Event Handlers
